@@ -6,8 +6,10 @@ Painel administrativo web do projeto Silpo (AGES — PUCRS).
 
 - [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
 - [Vite](https://vite.dev/) — build tool e dev server
+- [React Router](https://reactrouter.com/) — roteamento
 - [oxlint](https://oxc.rs/docs/guide/usage/linter.html) — linter
 - [Prettier](https://prettier.io/) — formatação de código
+- [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/react) — testes
 - [Husky](https://typicode.github.io/husky/) + [lint-staged](https://github.com/lint-staged/lint-staged) — lint/format automático antes de cada commit
 
 ## Requisitos
@@ -38,6 +40,39 @@ Copie [`.env.example`](./.env.example) para `.env` e ajuste os valores se necess
 | `npm run lint`         | roda o linter (oxlint)                                           |
 | `npm run format`       | formata todo o código com Prettier                               |
 | `npm run format:check` | só verifica formatação, sem alterar arquivos (útil em CI)        |
+| `npm run typecheck`    | roda o `tsc` sem emitir arquivos, só verificando tipos           |
+| `npm run test`         | roda a suíte de testes uma vez (útil em CI)                      |
+| `npm run test:watch`   | roda os testes em modo watch, pra desenvolvimento local          |
+
+## Estrutura
+
+```
+src/
+├── assets/       # imagens e outros arquivos estáticos
+├── components/   # UI reutilizável
+├── hooks/        # hooks customizados
+├── lib/          # helpers puros, sem estado
+├── pages/        # telas / rotas
+├── services/     # chamadas à API
+└── types/        # tipos TypeScript compartilhados
+```
+
+## Testes
+
+Testes ficam ao lado do arquivo que testam (ex.: `src/pages/Dashboard.test.tsx`), usando
+[Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/react).
+
+```bash
+npm run test
+```
+
+## CI
+
+[.github/workflows/ci.yml](.github/workflows/ci.yml) roda em todo push e pull request:
+
+- **Lint** — `oxlint` + `prettier --check` + `tsc` (typecheck) + `npm audit`
+- **Test** — `vitest run`
+- **Build** — `vite build` (roda só se `Lint` e `Test` passarem)
 
 ## Fluxo de branches
 
