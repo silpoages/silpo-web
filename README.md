@@ -44,6 +44,19 @@ Copie [`.env.example`](./.env.example) para `.env` e ajuste os valores se necess
 | `npm run test`         | roda a suíte de testes uma vez (útil em CI)                      |
 | `npm run test:watch`   | roda os testes em modo watch, pra desenvolvimento local          |
 
+## Estrutura
+
+```
+src/
+├── assets/       # imagens e outros arquivos estáticos
+├── components/   # UI reutilizável
+├── hooks/        # hooks customizados
+├── lib/          # helpers puros, sem estado
+├── pages/        # telas / rotas
+├── services/     # chamadas à API
+└── types/        # tipos TypeScript compartilhados
+```
+
 ## Testes
 
 Testes ficam ao lado do arquivo que testam (ex.: `src/pages/Dashboard.test.tsx`), usando
@@ -60,9 +73,6 @@ npm run test
 - **Lint** — `oxlint` + `prettier --check` + `tsc` (typecheck) + `npm audit`
 - **Test** — `vitest run`
 - **Build** — `vite build` (roda só se `Lint` e `Test` passarem)
-
-Pra travar merge de fato nisso, adicione os três como status checks obrigatórios na proteção de
-branch do repositório.
 
 ## Fluxo de branches
 
