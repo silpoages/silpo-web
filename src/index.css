@@ -60,6 +60,118 @@
   box-sizing: border-box;
 }
 
+.dashboard {
+  width: min(100% - 48px, 960px);
+  margin: 0 auto;
+  text-align: left;
+}
+
+.dashboard h1 {
+  text-align: center;
+}
+
+.dashboard__journey {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 48px;
+}
+
+.continue-journey-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  width: min(100%, 600px);
+  min-height: 128px;
+  padding: 24px 28px;
+  box-sizing: border-box;
+  border: 1px solid #dbe9e1;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(45, 91, 69, 0.08);
+}
+
+.continue-journey-card__icon {
+  display: grid;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 16px;
+  background: #e2f1e9;
+  color: #438066;
+}
+
+.continue-journey-card svg {
+  width: 27px;
+  height: 27px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.continue-journey-card__content {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.continue-journey-card__content strong {
+  color: #193c2d;
+  font-size: 21px;
+  line-height: 1.2;
+}
+
+.continue-journey-card__content span {
+  color: #71877b;
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.continue-journey-card__chevron {
+  flex: 0 0 24px;
+  margin-left: auto;
+  color: #78a28c;
+}
+
+.continue-journey-card__chevron svg {
+  width: 24px;
+  height: 24px;
+}
+
+@media (max-width: 600px) {
+  .dashboard {
+    width: min(100% - 32px, 960px);
+  }
+
+  .dashboard__journey {
+    padding-top: 4px;
+  }
+
+  .continue-journey-card {
+    gap: 14px;
+    min-height: 112px;
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .continue-journey-card__icon {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+  }
+
+  .continue-journey-card__content strong {
+    font-size: 17px;
+  }
+
+  .continue-journey-card__content span {
+    font-size: 14px;
+  }
+}
+
 body {
   margin: 0;
 }
