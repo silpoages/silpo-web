@@ -59,7 +59,7 @@ src/
 
 ## Testes
 
-Testes ficam ao lado do arquivo que testam (ex.: `src/pages/Dashboard.test.tsx`), usando
+Testes ficam ao lado do arquivo que testam (ex.: `src/pages/Dashboard/Dashboard.test.tsx`), usando
 [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/react).
 
 ```bash
