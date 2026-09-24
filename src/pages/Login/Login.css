@@ -6,13 +6,15 @@
 }
 
 .brand-panel {
+  --panel-gutter: clamp(32px, 5.6vw, 80px);
+
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
   min-height: 100%;
-  padding: 58px clamp(32px, 5.6vw, 80px) 56px;
+  padding: 58px var(--panel-gutter) 56px;
   color: #fff;
   background: #0d1a13;
   isolation: isolate;
@@ -106,11 +108,16 @@
 }
 
 .sound-wave {
+  --wave-edge-gap: 68px;
+
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  width: min(100%, 444px);
+  width: calc(
+    100% + var(--panel-gutter) + var(--panel-gutter) - var(--wave-edge-gap) - var(--wave-edge-gap)
+  );
   height: 56px;
+  margin-inline: calc(var(--wave-edge-gap) - var(--panel-gutter));
 }
 
 .sound-wave__bar {
@@ -310,7 +317,7 @@
 
 @media (max-width: 850px) {
   .brand-panel {
-    padding-inline: 32px;
+    --panel-gutter: 32px;
   }
 
   .brand-message h2 {
@@ -336,8 +343,10 @@
   }
 
   .brand-panel {
+    --panel-gutter: 28px;
+
     min-height: 285px;
-    padding: 28px 28px 32px;
+    padding: 28px var(--panel-gutter) 32px;
   }
 
   .brand-panel::before {
