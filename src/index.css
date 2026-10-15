@@ -6,6 +6,15 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --color-forest-900: #0d1a13;
+  --color-forest-700: #1c3527;
+  --color-leaf-500: #86c98f;
+  --color-leaf-600: #2f6b46;
+  --color-sage-400: #7bbf8f;
+  --color-surface-muted: #eef1ec;
+  --color-border-muted: #e5e8e2;
+  --color-text-muted: #6d7a70;
 }
 
 * {
