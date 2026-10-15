@@ -8,6 +8,7 @@
   -moz-osx-font-smoothing: grayscale;
 
   --color-forest-900: #0d1a13;
+  --color-forest-800: #14281d;
   --color-forest-700: #1c3527;
   --color-leaf-500: #86c98f;
   --color-leaf-600: #2f6b46;
@@ -15,6 +16,7 @@
   --color-surface-muted: #eef1ec;
   --color-border-muted: #e5e8e2;
   --color-text-muted: #6d7a70;
+  --color-text-strong: #0f2018;
 }
 
 * {

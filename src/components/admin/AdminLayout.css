@@ -169,6 +169,10 @@
   line-height: 16px;
 }
 
+.sidebar-item.active .sidebar-item__counter {
+  color: var(--color-leaf-500);
+}
+
 .user-card {
   display: flex;
   align-items: center;
