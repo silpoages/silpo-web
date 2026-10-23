@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BrandPanel } from '@/components/brand/BrandPanel';
 import { LoginButton } from '@/components/login/LoginButton';
@@ -7,7 +7,7 @@ import { LoginTitle } from '@/components/login/LoginTitle';
 import './Login.css';
 
 export function Login() {
-  const [feedback, setFeedback] = useState('');
+  const feedback = '';
   const navigate = useNavigate();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
