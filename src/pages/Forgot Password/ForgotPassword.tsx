@@ -4,15 +4,33 @@ import { BrandPanel } from '@/components/brand/BrandPanel';
 import { ForgotPasswordButton } from '@/components/forgot-password/ForgotPasswordButton';
 import { ForgotPasswordInput } from '@/components/forgot-password/ForgotPasswordInput';
 import { ForgotPasswordTitle } from '@/components/forgot-password/ForgotPasswordTitle';
+import { requestPasswordReset } from '@/services/ForgotPasswordService';
 import './ForgotPassword.css';
 
 export function ForgotPassword() {
   const [feedback, setFeedback] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setFeedback('Teste.');
+
+    const formData = new FormData(event.currentTarget);
+    const email = String(formData.get('email') ?? '').trim();
+
+    setFeedback('');
+    setIsSubmitting(true);
+
+    try {
+      await requestPasswordReset(email);
+
+      setFeedback('Se o e-mail estiver cadastrado, enviaremos um link para redefinir a senha');
+      event.currentTarget.reset();
+    } catch {
+      setFeedback('Não foi possível enviar o link. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function handleGoBack() {
@@ -41,7 +59,9 @@ export function ForgotPassword() {
               defaultValue=""
               required
             />
-            <ForgotPasswordButton type="submit">Enviar link de redefinição</ForgotPasswordButton>
+            <ForgotPasswordButton type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Enviando...' : 'Enviar link de redefinição'}
+            </ForgotPasswordButton>
             <p className="forgot-password-form__feedback" role="status" aria-live="polite">
               {feedback}
             </p>
