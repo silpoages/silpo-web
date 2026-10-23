@@ -1,19 +1,45 @@
 import { useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BrandPanel } from '@/components/login/BrandPanel';
 import { LoginButton } from '@/components/login/LoginButton';
 import { LoginInput } from '@/components/login/LoginInput';
 import { LoginTitle } from '@/components/login/LoginTitle';
+import { ApiError } from '@/services/api';
+import { login } from '@/services/auth';
 import './Login.css';
 
 export function Login() {
+  const navigate = useNavigate();
   const [feedback, setFeedback] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setFeedback('Teste.');
+    const formData = new FormData(event.currentTarget);
+    setIsSubmitting(true);
+    setFeedback('');
+    setHasError(false);
+
+    try {
+      await login(String(formData.get('email')), String(formData.get('password')));
+      navigate('/good-practices', { replace: true });
+    } catch (error: unknown) {
+      setHasError(true);
+      if (error instanceof ApiError && error.status === 401) {
+        setFeedback('E-mail ou senha inválidos.');
+      } else if (error instanceof ApiError && error.status === 403) {
+        setFeedback('Esta conta não tem permissão para entrar no painel.');
+      } else {
+        setFeedback('Não foi possível entrar. Tente novamente.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function handleForgotPassword() {
+    setHasError(false);
     setFeedback('A recuperação de senha estará disponível em breve.');
   }
 
@@ -32,6 +58,7 @@ export function Login() {
               autoComplete="username"
               defaultValue=""
               required
+              disabled={isSubmitting}
             />
             <LoginInput
               id="password"
@@ -40,18 +67,30 @@ export function Login() {
               name="password"
               autoComplete="current-password"
               required
+              disabled={isSubmitting}
             />
             <div className="login-form__options">
               <label className="remember-me">
                 <input type="checkbox" name="remember" defaultChecked />
                 <span>Manter conectado</span>
               </label>
-              <LoginButton type="button" variant="text" onClick={handleForgotPassword}>
+              <LoginButton
+                type="button"
+                variant="text"
+                disabled={isSubmitting}
+                onClick={handleForgotPassword}
+              >
                 Esqueci minha senha
               </LoginButton>
             </div>
-            <LoginButton type="submit">Entrar</LoginButton>
-            <p className="login-form__feedback" role="status" aria-live="polite">
+            <LoginButton type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Entrando…' : 'Entrar'}
+            </LoginButton>
+            <p
+              className="login-form__feedback"
+              role={hasError ? 'alert' : 'status'}
+              aria-live="polite"
+            >
               {feedback}
             </p>
           </form>

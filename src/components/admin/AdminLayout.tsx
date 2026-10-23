@@ -4,6 +4,7 @@ import type { BreadcrumbItem } from './Breadcrumb';
 import { findNavItemByPath, type AdminNavCounters } from './navigation';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
+import { clearAccessToken } from '@/services/session';
 import './AdminLayout.css';
 
 type AdminLayoutProps = {
@@ -24,6 +25,7 @@ export function AdminLayout({ counters, user, documentationUrl, onLogout }: Admi
   }
 
   function handleLogout() {
+    clearAccessToken();
     if (onLogout) {
       onLogout();
       return;

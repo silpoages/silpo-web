@@ -4,7 +4,7 @@ export interface GoodPractice {
   id: string;
   title: string;
   description: string;
-  usageCount: number;
+  usageCount?: number;
   status: 'published' | 'draft';
 }
 
@@ -43,7 +43,9 @@ export function GoodPracticeCard({ practice, onEdit, onDelete }: GoodPracticeCar
         <h2 className="good-practice-card__title">{practice.title}</h2>
         <p className="good-practice-card__description">{practice.description}</p>
         <div className="good-practice-card__footer">
-          <span className="good-practice-card__usage">{practice.usageCount} usos</span>
+          {practice.usageCount !== undefined && (
+            <span className="good-practice-card__usage">{practice.usageCount} usos</span>
+          )}
           <div className="good-practice-card__actions">
             <button
               className="good-practice-card__action"

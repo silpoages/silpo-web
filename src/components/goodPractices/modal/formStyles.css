@@ -4,6 +4,12 @@
   gap: 14px;
 }
 
+.good-practice-form__error {
+  margin: 0;
+  color: #a12b2b;
+  font-size: 13px;
+}
+
 .good-practice-form__field {
   display: flex;
   flex-direction: column;

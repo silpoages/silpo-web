@@ -1,10 +1,11 @@
 import './styles.css';
 
 interface HeaderProps {
-  onAdd: () => void;
+  onAdd?: () => void;
+  addDisabled?: boolean;
 }
 
-export default function Header({ onAdd }: HeaderProps) {
+export default function Header({ onAdd, addDisabled = false }: HeaderProps) {
   return (
     <header className="header">
       <div className="header-text">
@@ -15,7 +16,15 @@ export default function Header({ onAdd }: HeaderProps) {
         </p>
       </div>
       <div className="header-actions">
-        <button className="header-button" type="button" onClick={onAdd}>
+        <button
+          className="header-button"
+          type="button"
+          disabled={addDisabled}
+          title={
+            addDisabled ? 'O cadastro estará disponível quando o endpoint for liberado.' : undefined
+          }
+          onClick={onAdd}
+        >
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
             <path
               d="M12 5v14m-7-7h14"
@@ -24,7 +33,7 @@ export default function Header({ onAdd }: HeaderProps) {
               strokeLinecap="round"
             />
           </svg>
-          Adicionar
+          {addDisabled ? 'Adicionar (em breve)' : 'Adicionar'}
         </button>
       </div>
     </header>
