@@ -6,11 +6,14 @@ import { GoodPractices } from '@/pages/GoodPractices/GoodPractices';
 import { Login } from '@/pages/Login/Login';
 import { Meditations } from '@/pages/Meditations/Meditations';
 import { Users } from '@/pages/Users/Users';
+import { ForgotPassword } from '@/pages/Forgot Password/ForgotPassword';
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+
       <Route element={<AdminLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/good-practices" element={<GoodPractices />} />
