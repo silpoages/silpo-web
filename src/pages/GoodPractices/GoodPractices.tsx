@@ -7,7 +7,7 @@ import {
 } from '@/components/goodPractices/modal/GoodPracticeFormModal';
 import { GoodPracticesList } from '@/components/goodPractices/list/GoodPracticesList';
 import type { GoodPractice } from '@/components/goodPractices/card/GoodPracticeCard';
-import { Modal } from '@/components/modal/Modal';
+import { Modal } from '@/components/ui/Modal';
 import { ApiError } from '@/services/api';
 import {
   createGoodPractice,
@@ -15,6 +15,7 @@ import {
   getGoodPractices,
   updateGoodPractice,
 } from '@/services/goodPractices';
+import { clearAccessToken } from '@/services/session';
 
 type ModalState =
   | { type: 'create' }
@@ -34,7 +35,7 @@ export function GoodPractices() {
   const [reloadKey, setReloadKey] = useState(0);
 
   const handleUnauthorized = useCallback(() => {
-    sessionStorage.removeItem('silpo.accessToken');
+    clearAccessToken();
     navigate('/', { replace: true });
   }, [navigate]);
 
@@ -183,16 +184,23 @@ export function GoodPractices() {
       )}
       {modalState?.type === 'delete' && (
         <Modal
+          id="good-practice-delete-modal"
+          role="alertdialog"
           title="Excluir prática"
           description="Esta ação não pode ser desfeita."
           onClose={() => setModalState(null)}
-          actions={
+          footer={
             <>
-              <button type="button" disabled={isSaving} onClick={() => setModalState(null)}>
+              <button
+                type="button"
+                className="button button--secondary"
+                disabled={isSaving}
+                onClick={() => setModalState(null)}
+              >
                 Cancelar
               </button>
               <button
-                className="good-practice-modal__danger"
+                className="button button--danger"
                 type="button"
                 disabled={isSaving}
                 onClick={handleDelete}

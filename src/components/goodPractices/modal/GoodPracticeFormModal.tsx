@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import type { GoodPractice } from '../card/GoodPracticeCard';
-import { Modal } from '../../modal/Modal';
+import { Modal } from '@/components/ui/Modal';
 import './formStyles.css';
 
 export type GoodPracticeFormValues = Pick<GoodPractice, 'title' | 'description' | 'status'>;
@@ -43,16 +43,17 @@ export function GoodPracticeFormModal({
 
   return (
     <Modal
+      id="good-practice-form-modal"
       title={isEditing ? 'Editar prática' : 'Nova prática'}
       description="O conteúdo publicado aparece na seleção do usuário no aplicativo."
       onClose={onClose}
-      actions={
+      footer={
         <>
-          <button type="button" onClick={onClose}>
+          <button type="button" className="button button--secondary" onClick={onClose}>
             Cancelar
           </button>
           <button
-            className="good-practice-modal__primary"
+            className="button button--primary"
             type="submit"
             form="good-practice-form"
             disabled={isSaving}
