@@ -1,4 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { AdminFooter } from './AdminFooter';
 import type { BreadcrumbItem } from './Breadcrumb';
 import { findNavItemByPath, type AdminNavCounters } from './navigation';
@@ -16,6 +17,10 @@ type AdminLayoutProps = {
 export function AdminLayout({ counters, user, documentationUrl, onLogout }: AdminLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user: authUser, logout } = useAuth();
+  const sidebarUser =
+    user ??
+    (authUser ? { name: authUser.full_name ?? authUser.email, role: 'Administrador' } : undefined);
   const currentItem = findNavItemByPath(location.pathname);
 
   const breadcrumbItems: BreadcrumbItem[] = [{ label: 'Início', path: '/dashboard' }];
@@ -24,6 +29,7 @@ export function AdminLayout({ counters, user, documentationUrl, onLogout }: Admi
   }
 
   function handleLogout() {
+    logout();
     if (onLogout) {
       onLogout();
       return;
@@ -33,7 +39,7 @@ export function AdminLayout({ counters, user, documentationUrl, onLogout }: Admi
 
   return (
     <div className="admin-layout">
-      <Sidebar counters={counters} user={user} onLogout={handleLogout} />
+      <Sidebar counters={counters} user={sidebarUser} onLogout={handleLogout} />
       <div className="admin-layout__main">
         <Topbar breadcrumbItems={breadcrumbItems} onLogout={handleLogout} />
         <main className="admin-layout__content">

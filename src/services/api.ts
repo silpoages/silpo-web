@@ -1,4 +1,13 @@
+import { clearAccessToken, getAccessToken } from './session';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+let unauthorizedHandler: (() => void) | null = null;
+
+// O AuthProvider registra aqui o que fazer quando a sessão expira (401 com token).
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+  unauthorizedHandler = handler;
+}
 
 export class ApiError extends Error {
   status: number;
@@ -15,11 +24,20 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   if (!headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
+  const accessToken = getAccessToken();
+  if (accessToken && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${accessToken}`);
+  }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     headers,
   });
+
+  if (response.status === 401 && accessToken) {
+    clearAccessToken();
+    unauthorizedHandler?.();
+  }
 
   if (!response.ok) {
     let message = `Request to ${path} failed with status ${response.status}`;
