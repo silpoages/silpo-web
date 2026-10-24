@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
+import { AuthProvider } from '@/components/auth/AuthProvider';
 import { AdminLayout } from './AdminLayout';
 
 type RenderOptions = {
@@ -10,15 +11,17 @@ type RenderOptions = {
 
 function renderLayout({ path = '/dashboard', props = {} }: RenderOptions = {}) {
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path="/" element={<p>Tela de login</p>} />
-        <Route element={<AdminLayout {...props} />}>
-          <Route path="/dashboard" element={<p>Conteúdo do dashboard</p>} />
-          <Route path="/daily-messages" element={<p>Conteúdo das mensagens</p>} />
-        </Route>
-      </Routes>
-    </MemoryRouter>,
+    <AuthProvider>
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route path="/" element={<p>Tela de login</p>} />
+          <Route element={<AdminLayout {...props} />}>
+            <Route path="/dashboard" element={<p>Conteúdo do dashboard</p>} />
+            <Route path="/daily-messages" element={<p>Conteúdo das mensagens</p>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    </AuthProvider>,
   );
 }
 

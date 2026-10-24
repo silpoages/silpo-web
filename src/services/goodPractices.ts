@@ -1,6 +1,5 @@
 import type { GoodPractice } from '@/components/goodPractices/card/GoodPracticeCard';
 import { apiFetch } from './api';
-import { getAccessToken } from './session';
 
 type GoodPracticeResponse = {
   id: string;
@@ -35,15 +34,9 @@ function toRequestBody(practice: GoodPracticeInput) {
   };
 }
 
-function getAuthHeaders(): HeadersInit {
-  const accessToken = getAccessToken();
-  return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
-}
-
 export async function createGoodPractice(practice: GoodPracticeInput) {
   const response = await apiFetch<GoodPracticeResponse>('/admin/good-practices', {
     method: 'POST',
-    headers: getAuthHeaders(),
     body: JSON.stringify(toRequestBody(practice)),
   });
   return toGoodPractice(response);
@@ -54,9 +47,7 @@ export async function getGoodPractices() {
   const practices: GoodPractice[] = [];
   const fetchPage = async (page: number) => {
     const query = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
-    return apiFetch<GoodPracticeListResponse>(`/admin/good-practices?${query.toString()}`, {
-      headers: getAuthHeaders(),
-    });
+    return apiFetch<GoodPracticeListResponse>(`/admin/good-practices?${query.toString()}`);
   };
 
   const firstPage = await fetchPage(1);
@@ -76,7 +67,6 @@ export async function updateGoodPractice(id: string, practice: GoodPracticeInput
     `/admin/good-practices/${encodeURIComponent(id)}`,
     {
       method: 'PATCH',
-      headers: getAuthHeaders(),
       body: JSON.stringify(toRequestBody(practice)),
     },
   );
@@ -86,6 +76,5 @@ export async function updateGoodPractice(id: string, practice: GoodPracticeInput
 export function deleteGoodPractice(id: string) {
   return apiFetch<void>(`/admin/good-practices/${encodeURIComponent(id)}`, {
     method: 'DELETE',
-    headers: getAuthHeaders(),
   });
 }

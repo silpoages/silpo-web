@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Header from '@/components/goodPractices/header/Header';
 import {
   GoodPracticeFormModal,
@@ -15,7 +14,6 @@ import {
   getGoodPractices,
   updateGoodPractice,
 } from '@/services/goodPractices';
-import { clearAccessToken } from '@/services/session';
 
 type ModalState =
   | { type: 'create' }
@@ -24,7 +22,6 @@ type ModalState =
   | null;
 
 export function GoodPractices() {
-  const navigate = useNavigate();
   const [practices, setPractices] = useState<GoodPractice[]>([]);
   const [modalState, setModalState] = useState<ModalState>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,11 +30,6 @@ export function GoodPractices() {
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
-
-  const handleUnauthorized = useCallback(() => {
-    clearAccessToken();
-    navigate('/', { replace: true });
-  }, [navigate]);
 
   useEffect(() => {
     let isCurrent = true;
@@ -50,10 +42,8 @@ export function GoodPractices() {
       })
       .catch((error: unknown) => {
         if (isCurrent) {
-          if (isUnauthorized(error)) {
-            handleUnauthorized();
-            return;
-          }
+          // 401: o AuthProvider já encerra a sessão e volta para o login.
+          if (isUnauthorized(error)) return;
           setLoadError(getErrorMessage(error, 'Não foi possível carregar as práticas.'));
         }
       })
@@ -66,7 +56,7 @@ export function GoodPractices() {
     return () => {
       isCurrent = false;
     };
-  }, [handleUnauthorized, reloadKey]);
+  }, [reloadKey]);
 
   async function handleSave(values: GoodPracticeFormValues) {
     if (!modalState || modalState.type === 'delete') {
@@ -92,10 +82,7 @@ export function GoodPractices() {
       }
       setModalState(null);
     } catch (error: unknown) {
-      if (isUnauthorized(error)) {
-        handleUnauthorized();
-        return;
-      }
+      if (isUnauthorized(error)) return;
       setMutationError(getErrorMessage(error, 'Não foi possível salvar a prática.'));
     } finally {
       setIsSaving(false);
@@ -118,10 +105,7 @@ export function GoodPractices() {
       setFeedback('Prática excluída com sucesso.');
       setModalState(null);
     } catch (error: unknown) {
-      if (isUnauthorized(error)) {
-        handleUnauthorized();
-        return;
-      }
+      if (isUnauthorized(error)) return;
       setMutationError(getErrorMessage(error, 'Não foi possível excluir a prática.'));
     } finally {
       setIsSaving(false);

@@ -24,7 +24,7 @@ npm install
 npm run dev
 ```
 
-Abre em `http://localhost:5173`.
+Abre em `http://localhost:3000` (mesma URL do `WEB_APP_URL` padrão do backend).
 
 ## Variáveis de ambiente
 
