@@ -4,7 +4,7 @@ import { BrandPanel } from '@/components/brand/BrandPanel';
 import { ForgotPasswordButton } from '@/components/forgot-password/ForgotPasswordButton';
 import { ForgotPasswordInput } from '@/components/forgot-password/ForgotPasswordInput';
 import { ForgotPasswordTitle } from '@/components/forgot-password/ForgotPasswordTitle';
-import { requestPasswordReset } from '@/services/ForgotPasswordService';
+import { requestPasswordReset } from '@/services/forgotPassword';
 import './ForgotPassword.css';
 
 export function ForgotPassword() {
@@ -15,7 +15,9 @@ export function ForgotPassword() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const formData = new FormData(event.currentTarget);
+    // Guardado antes do await: o React zera event.currentTarget depois do dispatch.
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const email = String(formData.get('email') ?? '').trim();
 
     setFeedback('');
@@ -25,7 +27,7 @@ export function ForgotPassword() {
       await requestPasswordReset(email);
 
       setFeedback('Se o e-mail estiver cadastrado, enviaremos um link para redefinir a senha');
-      event.currentTarget.reset();
+      form.reset();
     } catch {
       setFeedback('Não foi possível enviar o link. Tente novamente.');
     } finally {
