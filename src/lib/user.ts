@@ -1,4 +1,4 @@
-import type { Gender, UserFilters } from '@/types/user';
+import type { AdminUser, Gender, UserFilters } from '@/types/user';
 
 export const GENDER_LABELS: Record<Gender, string> = {
   FEMALE: 'Feminino',
@@ -22,4 +22,16 @@ export function getInitials(name: string): string {
 
 export function formatAge(age: number): string {
   return `${age} ${age === 1 ? 'ano' : 'anos'}`;
+}
+
+export function getDisplayName(user: AdminUser): string {
+  return user.name ?? 'Sem nome';
+}
+
+// birthDate no formato "AAAA-MM-DD", como vem da API.
+export function getAge(birthDate: string, now = new Date()): number {
+  const [year, month, day] = birthDate.split('-').map(Number);
+  const hasHadBirthdayThisYear =
+    now.getMonth() + 1 > month || (now.getMonth() + 1 === month && now.getDate() >= day);
+  return now.getFullYear() - year - (hasHadBirthdayThisYear ? 0 : 1);
 }

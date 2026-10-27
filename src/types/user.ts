@@ -4,12 +4,12 @@ export type Gender = 'FEMALE' | 'MALE' | 'NON_BINARY' | 'OTHER' | 'PREFER_NOT_TO
 
 export type AdminUser = {
   id: string;
-  name: string;
+  // Contas que ainda não concluíram o onboarding no app não têm nome nem nascimento.
+  name: string | null;
   email: string;
-  age: number;
+  birthDate: string | null;
   gender: Gender;
   isActive: boolean;
-  lastAccess: string | null;
   createdAt: string;
 };
 
@@ -25,7 +25,7 @@ export type UserFilters = {
 export type UserFormValues = {
   name: string;
   email: string;
-  age: number;
+  birthDate: string | null;
   gender: Gender;
   isActive: boolean;
 };

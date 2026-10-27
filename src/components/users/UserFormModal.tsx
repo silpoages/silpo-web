@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Modal } from '@/components/ui/Modal';
-import { GENDER_OPTIONS } from '@/lib/user';
+import { GENDER_OPTIONS, getAge } from '@/lib/user';
 import type { AdminUser, Gender, UserFormValues } from '@/types/user';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -9,38 +9,55 @@ const MAX_AGE = 120;
 
 type UserFormModalProps = {
   user?: AdminUser;
+  isSaving?: boolean;
+  error?: string | null;
   onSubmit: (values: UserFormValues) => void;
   onClose: () => void;
 };
 
-type FormErrors = Partial<Record<'name' | 'email' | 'age', string>>;
+type FormErrors = Partial<Record<'name' | 'email' | 'birthDate', string>>;
 
-function validate(name: string, email: string, age: number): FormErrors {
+function validate(name: string, email: string, birthDate: string): FormErrors {
   const errors: FormErrors = {};
   if (!name.trim()) errors.name = 'Informe o nome.';
   if (!EMAIL_PATTERN.test(email.trim())) errors.email = 'Informe um e-mail válido.';
-  if (!Number.isInteger(age) || age < MIN_AGE || age > MAX_AGE) {
-    errors.age = `Informe uma idade entre ${MIN_AGE} e ${MAX_AGE}.`;
+  if (birthDate) {
+    const age = getAge(birthDate);
+    if (Number.isNaN(age) || age < MIN_AGE || age > MAX_AGE) {
+      errors.birthDate = `A idade deve ficar entre ${MIN_AGE} e ${MAX_AGE} anos.`;
+    }
   }
   return errors;
 }
 
-export function UserFormModal({ user, onSubmit, onClose }: UserFormModalProps) {
+export function UserFormModal({
+  user,
+  isSaving = false,
+  error,
+  onSubmit,
+  onClose,
+}: UserFormModalProps) {
   const isEditing = Boolean(user);
   const [name, setName] = useState(user?.name ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
-  const [age, setAge] = useState(String(user?.age ?? 18));
+  const [birthDate, setBirthDate] = useState(user?.birthDate ?? '');
   const [gender, setGender] = useState<Gender>(user?.gender ?? 'FEMALE');
   const [isActive, setIsActive] = useState(user?.isActive ?? true);
   const [errors, setErrors] = useState<FormErrors>({});
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    const nextErrors = validate(name, email, Number(age));
+    const nextErrors = validate(name, email, birthDate);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    onSubmit({ name: name.trim(), email: email.trim(), age: Number(age), gender, isActive });
+    onSubmit({
+      name: name.trim(),
+      email: email.trim(),
+      birthDate: birthDate || null,
+      gender,
+      isActive,
+    });
   }
 
   return (
@@ -54,13 +71,23 @@ export function UserFormModal({ user, onSubmit, onClose }: UserFormModalProps) {
           <button type="button" className="button button--secondary" onClick={onClose}>
             Cancelar
           </button>
-          <button type="submit" form="user-form-fields" className="button button--primary">
-            {isEditing ? 'Salvar alterações' : 'Criar usuário'}
+          <button
+            type="submit"
+            form="user-form-fields"
+            className="button button--primary"
+            disabled={isSaving}
+          >
+            {isSaving ? 'Salvando…' : isEditing ? 'Salvar alterações' : 'Criar usuário'}
           </button>
         </>
       }
     >
       <form id="user-form-fields" className="user-form" noValidate onSubmit={handleSubmit}>
+        {error && (
+          <p className="users-field__error user-form__full" role="alert">
+            {error}
+          </p>
+        )}
         <label className="users-field user-form__full">
           <span className="users-field__label">Nome</span>
           <input
@@ -85,17 +112,15 @@ export function UserFormModal({ user, onSubmit, onClose }: UserFormModalProps) {
           {errors.email && <span className="users-field__error">{errors.email}</span>}
         </label>
         <label className="users-field">
-          <span className="users-field__label">Idade</span>
+          <span className="users-field__label">Data de nascimento</span>
           <input
-            type="number"
+            type="date"
             className="users-field__control"
-            min={MIN_AGE}
-            max={MAX_AGE}
-            value={age}
-            aria-invalid={Boolean(errors.age)}
-            onChange={(event) => setAge(event.target.value)}
+            value={birthDate}
+            aria-invalid={Boolean(errors.birthDate)}
+            onChange={(event) => setBirthDate(event.target.value)}
           />
-          {errors.age && <span className="users-field__error">{errors.age}</span>}
+          {errors.birthDate && <span className="users-field__error">{errors.birthDate}</span>}
         </label>
         <label className="users-field">
           <span className="users-field__label">Gênero</span>
@@ -122,6 +147,11 @@ export function UserFormModal({ user, onSubmit, onClose }: UserFormModalProps) {
             <option value="inactive">Inativa</option>
           </select>
         </label>
+        {!isEditing && (
+          <p className="user-form__notice user-form__full">
+            A pessoa recebe um e-mail para definir a própria senha.
+          </p>
+        )}
       </form>
     </Modal>
   );

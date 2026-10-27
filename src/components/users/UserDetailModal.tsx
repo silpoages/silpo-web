@@ -1,7 +1,7 @@
 import { Modal } from '@/components/ui/Modal';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { formatDate, formatLastAccess } from '@/lib/date';
-import { formatAge, GENDER_LABELS } from '@/lib/user';
+import { formatDate } from '@/lib/date';
+import { formatAge, GENDER_LABELS, getAge, getDisplayName } from '@/lib/user';
 import type { AdminUser } from '@/types/user';
 
 type UserDetailModalProps = {
@@ -13,16 +13,15 @@ type UserDetailModalProps = {
 export function UserDetailModal({ user, onEdit, onClose }: UserDetailModalProps) {
   const details = [
     { label: 'E-mail', value: user.email },
-    { label: 'Idade', value: formatAge(user.age) },
+    { label: 'Idade', value: user.birthDate ? formatAge(getAge(user.birthDate)) : '—' },
     { label: 'Gênero', value: GENDER_LABELS[user.gender] },
-    { label: 'Último acesso', value: user.lastAccess ? formatLastAccess(user.lastAccess) : '—' },
     { label: 'Cadastrado em', value: formatDate(user.createdAt) },
   ];
 
   return (
     <Modal
       id="user-detail"
-      title={user.name}
+      title={getDisplayName(user)}
       description="Somente dados administrativos da conta."
       onClose={onClose}
       footer={

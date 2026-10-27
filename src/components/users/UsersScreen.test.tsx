@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { DEFAULT_USER_FILTERS } from '@/lib/user';
+import { DEFAULT_USER_FILTERS, formatAge, getAge } from '@/lib/user';
 import type { AdminUser } from '@/types/user';
 import { UsersScreen } from './UsersScreen';
 
@@ -9,20 +9,18 @@ const users: AdminUser[] = [
     id: '1',
     name: 'Marina Alves',
     email: 'marina.alves@email.com',
-    age: 29,
+    birthDate: '1997-03-12',
     gender: 'FEMALE',
     isActive: true,
-    lastAccess: '2026-08-19T12:00:00Z',
     createdAt: '2026-03-12T12:00:00Z',
   },
   {
     id: '2',
     name: 'Lucas Ferreira',
     email: 'lucas.f@email.com',
-    age: 19,
+    birthDate: null,
     gender: 'MALE',
     isActive: false,
-    lastAccess: null,
     createdAt: '2026-01-15T12:00:00Z',
   },
 ];
@@ -43,7 +41,6 @@ function renderScreen(props: Partial<Parameters<typeof UsersScreen>[0]> = {}) {
   render(
     <UsersScreen
       users={users}
-      totalUsers={2}
       search=""
       filters={DEFAULT_USER_FILTERS}
       page={1}
@@ -66,15 +63,14 @@ describe('UsersScreen', () => {
       'Usuário',
       'Idade',
       'Gênero',
-      'Último acesso',
       'Status',
       'Ações',
     ]);
     expect(screen.getByText('MA')).toBeInTheDocument();
     expect(screen.getByText('marina.alves@email.com')).toBeInTheDocument();
-    expect(screen.getByText('29 anos')).toBeInTheDocument();
+    expect(screen.getByText(formatAge(getAge('1997-03-12')))).toBeInTheDocument();
     expect(screen.getByText('Feminino')).toBeInTheDocument();
-    expect(screen.getByText('19/08/2026')).toBeInTheDocument();
+    expect(screen.getByText('—')).toBeInTheDocument();
     expect(screen.queryByText(/diário|emoções|contatos|sessões/i)).not.toBeInTheDocument();
   });
 
@@ -136,10 +132,18 @@ describe('UsersScreen', () => {
   });
 
   it('shows the empty state when there are no users', () => {
-    renderScreen({ users: [], totalUsers: 0 });
+    renderScreen({ users: [] });
 
     expect(screen.getByText('Nenhum usuário cadastrado.')).toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
+
+  it('shows the no results state when the filters match nothing', () => {
+    renderScreen({ users: [], filters: { status: 'inactive', gender: 'all' } });
+
+    expect(
+      screen.getByText('Nenhum usuário corresponde aos filtros selecionados.'),
+    ).toBeInTheDocument();
   });
 
   it('shows the no results state when the search matches nothing', () => {
