@@ -6,6 +6,8 @@ export type DailyMessage = {
   createdAt: string;
 };
 
+export type DailyMessageFormValues = Pick<DailyMessage, 'message' | 'enabled'>;
+
 export type DailyMessageStatusFilter = 'all' | 'enabled' | 'disabled';
 
 export type DailyMessageCounts = {
