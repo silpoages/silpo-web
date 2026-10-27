@@ -39,9 +39,10 @@ describe('users service', () => {
       filters: { status: 'inactive', gender: 'FEMALE' },
     });
 
-    const url = new URL(fetchMock.mock.calls[0][0] as string, 'http://localhost');
-    expect(url.pathname).toBe('/admin/users');
-    expect(Object.fromEntries(url.searchParams)).toEqual({
+    // A URL base vem do .env, que não existe no CI; por isso só o caminho é conferido.
+    const [path, queryString] = (fetchMock.mock.calls[0][0] as string).split('?');
+    expect(path).toMatch(/\/admin\/users$/);
+    expect(Object.fromEntries(new URLSearchParams(queryString))).toEqual({
       page: '2',
       page_size: '10',
       role: 'USER',
