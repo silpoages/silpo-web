@@ -152,6 +152,20 @@
   transform: translateX(20px);
 }
 
+.toggle--small {
+  width: 36px;
+  height: 20px;
+}
+
+.toggle--small .toggle__thumb {
+  width: 16px;
+  height: 16px;
+}
+
+.toggle--small.toggle--checked .toggle__thumb {
+  transform: translateX(16px);
+}
+
 .toggle:disabled {
   cursor: not-allowed;
   opacity: 0.6;
