@@ -11,7 +11,6 @@ import './UsersScreen.css';
 
 type UsersScreenProps = {
   users: AdminUser[];
-  totalUsers: number;
   search: string;
   filters: UserFilters;
   page: number;
@@ -34,19 +33,18 @@ function countActiveFilters(filters: UserFilters) {
   return Object.values(filters).filter((value) => value !== 'all').length;
 }
 
-function getEmptyMessage(search: string, totalUsers: number) {
+function getEmptyMessage(search: string, activeFiltersCount: number) {
   if (search.trim()) {
     return `Nenhum usuário encontrado para "${search.trim()}".`;
   }
-  if (totalUsers === 0) {
-    return 'Nenhum usuário cadastrado.';
+  if (activeFiltersCount > 0) {
+    return 'Nenhum usuário corresponde aos filtros selecionados.';
   }
-  return 'Nenhum usuário corresponde aos filtros selecionados.';
+  return 'Nenhum usuário cadastrado.';
 }
 
 export function UsersScreen({
   users,
-  totalUsers,
   search,
   filters,
   page,
@@ -90,7 +88,7 @@ export function UsersScreen({
     }
 
     if (users.length === 0) {
-      return <p className="users__feedback">{getEmptyMessage(search, totalUsers)}</p>;
+      return <p className="users__feedback">{getEmptyMessage(search, activeFiltersCount)}</p>;
     }
 
     return (

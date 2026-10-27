@@ -6,6 +6,8 @@ type ConfirmDialogProps = {
   message: string;
   confirmLabel: string;
   cancelLabel?: string;
+  isConfirming?: boolean;
+  error?: string | null;
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -15,6 +17,8 @@ export function ConfirmDialog({
   message,
   confirmLabel,
   cancelLabel = 'Cancelar',
+  isConfirming = false,
+  error,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -30,11 +34,22 @@ export function ConfirmDialog({
           <button type="button" className="button button--secondary" onClick={onCancel}>
             {cancelLabel}
           </button>
-          <button type="button" className="button button--danger" onClick={onConfirm}>
+          <button
+            type="button"
+            className="button button--danger"
+            disabled={isConfirming}
+            onClick={onConfirm}
+          >
             {confirmLabel}
           </button>
         </>
       }
-    />
+    >
+      {error && (
+        <p className="confirm-dialog__error" role="alert">
+          {error}
+        </p>
+      )}
+    </Modal>
   );
 }

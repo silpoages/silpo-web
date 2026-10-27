@@ -308,6 +308,13 @@
 
 /* Modal */
 
+.confirm-dialog__error {
+  margin: 0;
+  color: #a33a2c;
+  font-size: 13px;
+  line-height: 18px;
+}
+
 .modal-overlay {
   position: fixed;
   z-index: 100;
