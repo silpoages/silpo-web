@@ -92,7 +92,7 @@ jobs:
 
       # VITE_API_BASE_URL is inlined into the bundle at build time by Vite, so the
       # production build needs its own build step rather than reusing the Build job's output.
-      # No custom domain yet, so this has to be the api unit's ALB DNS name (set as a
+      # No custom domain yet, so this has to be the api unit's CloudFront domain (set as a
       # repository variable, not hardcoded here — it's an AWS-generated name, not a fixed
       # value) rather than a stable "https://api.<domain>" URL.
       - name: Build
