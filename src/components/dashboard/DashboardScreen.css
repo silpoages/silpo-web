@@ -1,0 +1,508 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dashboard__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.dashboard__title {
+  margin: 0;
+  color: var(--color-text-strong);
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 40px;
+}
+
+.dashboard__subtitle {
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+  font-size: 16px;
+  line-height: 26px;
+}
+
+.dashboard__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.dashboard__feedback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: 0;
+  padding: 48px 24px;
+  border: 1px solid var(--color-border-muted);
+  border-radius: 16px;
+  color: var(--color-text-muted);
+  background: #fff;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+}
+
+.dashboard__feedback p {
+  margin: 0;
+}
+
+.dashboard__retry {
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  background: var(--color-forest-800);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  transition: background-color 0.15s ease;
+}
+
+.dashboard__retry:hover {
+  background: var(--color-forest-700);
+}
+
+.dashboard__retry:focus-visible,
+.period-select select:focus-visible {
+  outline: 2px solid var(--color-leaf-600);
+  outline-offset: 2px;
+}
+
+/* PeriodSelect */
+
+.period-select {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.period-select select {
+  height: 44px;
+  padding: 0 40px 0 16px;
+  border: 1px solid var(--color-border-muted);
+  border-radius: 12px;
+  color: var(--color-text-strong);
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  appearance: none;
+  cursor: pointer;
+}
+
+.period-select img {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Cards */
+
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--color-border-muted);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.dashboard-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dashboard-card__title {
+  margin: 0;
+  color: var(--color-text-strong);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.dashboard-card__eyebrow {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.32px;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.dashboard-card__meta {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.dashboard-card__empty {
+  margin: auto 0;
+  padding: 24px 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+}
+
+/* StatCard */
+
+.stat-card__value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+}
+
+.stat-card__number {
+  color: var(--color-text-strong);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 40px;
+}
+
+.stat-card__description {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* MoodStackedChart */
+
+.mood-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px;
+  border-radius: 16px;
+  color: #fff;
+  background: var(--color-forest-900);
+}
+
+.mood-chart__eyebrow {
+  margin: 0;
+  color: var(--color-leaf-500);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.32px;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.mood-chart__title {
+  margin: 0;
+  max-width: 640px;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 34px;
+}
+
+.mood-chart__highlight {
+  color: var(--color-leaf-500);
+}
+
+.mood-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mood-chart__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgb(255 255 255 / 75%);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.mood-chart__legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.mood-chart__plot {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 220px;
+  margin-top: 8px;
+}
+
+.mood-chart__plot--dense {
+  gap: 2px;
+}
+
+.mood-chart__column {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 3px 3px 0 0;
+}
+
+.mood-chart__segment {
+  flex-basis: 0;
+  min-height: 1px;
+}
+
+.mood-chart__axis {
+  display: flex;
+  justify-content: space-between;
+  color: rgb(255 255 255 / 55%);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.mood-chart__empty {
+  margin: 0;
+  padding: 48px 0;
+  color: rgb(255 255 255 / 70%);
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+}
+
+/* MoodDistributionCard */
+
+.mood-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mood-row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.mood-row__label {
+  color: var(--color-text-strong);
+}
+
+.mood-row__track,
+.activity-ranking__track {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-surface-muted);
+}
+
+.mood-row__bar,
+.activity-ranking__bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.mood-row__value {
+  color: var(--color-text-strong);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* TopActivitiesCard */
+
+.activity-ranking {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity-ranking__item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.activity-ranking__position {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--color-forest-700);
+  background: var(--color-surface-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.activity-ranking__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.activity-ranking__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.activity-ranking__name {
+  overflow: hidden;
+  color: var(--color-text-strong);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-ranking__count {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.activity-ranking__bar {
+  background: var(--color-leaf-600);
+}
+
+/* AgeDistributionCard */
+
+.age-chart {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+}
+
+.age-chart__column {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.age-chart__track {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 40px;
+  height: 140px;
+}
+
+.age-chart__bar {
+  width: 100%;
+  min-height: 2px;
+  border-radius: 6px 6px 0 0;
+  background: var(--color-sage-400);
+}
+
+.age-chart__value {
+  color: var(--color-text-strong);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.age-chart__label {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+/* GenderDistributionCard */
+
+.gender-chart {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 32px;
+}
+
+.gender-chart__donut {
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+.gender-chart__ring,
+.gender-chart__segment {
+  fill: none;
+  stroke-width: 14;
+}
+
+.gender-chart__ring {
+  stroke: var(--color-surface-muted);
+}
+
+.gender-chart__legend {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gender-chart__legend-item {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.gender-chart__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.gender-chart__label {
+  color: var(--color-text-strong);
+}
+
+.gender-chart__value {
+  color: var(--color-text-strong);
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .dashboard__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard__header {
+    flex-direction: column;
+  }
+}

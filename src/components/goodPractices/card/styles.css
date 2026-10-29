@@ -1,0 +1,138 @@
+.good-practice-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 340px;
+  overflow: hidden;
+  border: 1px solid #e4ebe5;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(27 41 35 / 4%);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.good-practice-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgb(27 41 35 / 10%);
+}
+
+.good-practice-card__visual {
+  position: relative;
+  display: flex;
+  min-height: 112px;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(120deg, #19432e 0%, #34734f 58%, #7cbd8c 100%);
+}
+
+.good-practice-card__status {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 999px;
+  background: rgb(15 43 29 / 58%);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.good-practice-card__status::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #8fd39d;
+  content: '';
+}
+
+.good-practice-card__status--draft {
+  background: rgb(71 83 76 / 65%);
+}
+
+.good-practice-card__status--draft::before {
+  background: #c2cbc5;
+}
+
+.good-practice-card__icon {
+  width: 28px;
+  height: 28px;
+  color: rgb(255 255 255 / 90%);
+}
+
+.good-practice-card__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.good-practice-card__title {
+  margin: 0 0 6px;
+  color: #1b2923;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.good-practice-card__description {
+  margin: 0;
+  color: #78857d;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.good-practice-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #e8ede9;
+  color: #78857d;
+  font-size: 13px;
+}
+
+.good-practice-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.good-practice-card__action {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+}
+
+.good-practice-card__action svg {
+  width: 16px;
+  height: 16px;
+}
+
+.good-practice-card__action:focus-visible {
+  outline: 2px solid #34734f;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .good-practice-card {
+    transition: none;
+  }
+
+  .good-practice-card:hover {
+    transform: none;
+  }
+}

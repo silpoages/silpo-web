@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, master]
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # VITE_API_BASE_URL is inlined into the bundle at build time by Vite, so the
+      # production build needs its own build step rather than reusing the Build job's output.
+      # No custom domain yet, so this has to be the api unit's CloudFront domain (set as a
+      # repository variable, not hardcoded here — it's an AWS-generated name, not a fixed
+      # value) rather than a stable "https://api.<domain>" URL.
+      - name: Build
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+
+      # Assumes the deploy role via OIDC — no long-lived AWS keys stored in GitHub. The role
+      # ARN and target bucket/distribution come from silpo-iac's web unit outputs; set them as
+      # repository variables (Settings > Secrets and variables > Actions > Variables).
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-2
+
+      - name: Sync to S3
+        run: aws s3 sync dist/ "s3://${{ vars.AWS_S3_BUCKET }}" --delete
+
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id "${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}" --paths "/*"
