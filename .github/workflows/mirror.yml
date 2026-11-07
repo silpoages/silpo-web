@@ -19,7 +19,7 @@ jobs:
 
       - name: Push master e develop para o Tools
         env:
-          GITLAB_TOKEN: ${{ secrets.GITLAB_MIRROR_TOKEN }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_MIRROR_TOKEN_WEB }}
           GITLAB_REPO: tools.ages.pucrs.br/2026-2/3jk-5jk/silpo/silpo-web.git
         run: |
           git push "https://oauth2:${GITLAB_TOKEN}@${GITLAB_REPO}" refs/remotes/origin/master:refs/heads/master refs/remotes/origin/develop:refs/heads/develop
