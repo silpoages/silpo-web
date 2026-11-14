@@ -1,13 +1,14 @@
 import { useState, type FormEvent } from 'react';
 import selectChevronIcon from '@/assets/icons/select-chevron.svg';
 import { Modal } from '@/components/ui/Modal';
+import { ApiError } from '@/services/api';
 import type { DailyMessage, DailyMessageFormValues } from '@/types/dailyMessage';
 
 export const DAILY_MESSAGE_MAX_LENGTH = 140;
 
 type DailyMessageFormModalProps = {
   dailyMessage?: DailyMessage;
-  onSubmit: (values: DailyMessageFormValues) => void;
+  onSubmit: (values: DailyMessageFormValues) => void | Promise<void>;
   onClose: () => void;
 };
 
@@ -20,8 +21,9 @@ export function DailyMessageFormModal({
   const [message, setMessage] = useState(dailyMessage?.message ?? '');
   const [isEnabled, setIsEnabled] = useState(dailyMessage?.enabled ?? true);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     const trimmedMessage = message.trim();
     if (!trimmedMessage) {
@@ -30,7 +32,18 @@ export function DailyMessageFormModal({
     }
 
     setError(null);
-    onSubmit({ message: trimmedMessage, enabled: isEnabled });
+    setIsSubmitting(true);
+    try {
+      await onSubmit({ message: trimmedMessage, enabled: isEnabled });
+    } catch (submitError) {
+      setError(
+        submitError instanceof ApiError
+          ? submitError.message
+          : 'Não foi possível salvar a mensagem.',
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -44,7 +57,12 @@ export function DailyMessageFormModal({
           <button type="button" className="button button--secondary" onClick={onClose}>
             Cancelar
           </button>
-          <button type="submit" form="daily-message-form-fields" className="button button--primary">
+          <button
+            type="submit"
+            form="daily-message-form-fields"
+            className="button button--primary"
+            disabled={isSubmitting}
+          >
             {isEditing ? 'Salvar alterações' : 'Criar mensagem'}
           </button>
         </>

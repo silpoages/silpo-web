@@ -1,16 +1,52 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MeditationFormModal } from '@/components/meditations/MeditationFormModal';
 import { MeditationsScreen } from '@/components/meditations/MeditationsScreen';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { ApiError } from '@/services/api';
+import {
+  createMeditation,
+  deleteMeditation,
+  getMeditations,
+  setMeditationEnabled,
+  updateMeditation,
+} from '@/services/meditations';
 import type { Meditation, MeditationFormValues } from '@/types/meditation';
-import { MEDITATIONS_MOCK } from './meditationsMock';
 
 type FormState = { mode: 'create' } | { mode: 'edit'; meditationId: string } | null;
 
 export function Meditations() {
-  const [meditations, setMeditations] = useState(MEDITATIONS_MOCK);
+  const [meditations, setMeditations] = useState<Meditation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [formState, setFormState] = useState<FormState>(null);
   const [deletingMeditationId, setDeletingMeditationId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let isCurrent = true;
+    setIsLoading(true);
+    setError(null);
+
+    getMeditations()
+      .then((items) => {
+        if (!isCurrent) return;
+        setMeditations(items);
+        setIsLoading(false);
+      })
+      .catch((loadError: unknown) => {
+        if (!isCurrent) return;
+        if (loadError instanceof ApiError && loadError.status === 401) return;
+        setError('Não foi possível carregar as meditações.');
+        setIsLoading(false);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [reloadKey]);
 
   const findMeditation = (id: string | null) =>
     meditations.find((meditation) => meditation.id === id);
@@ -18,54 +54,63 @@ export function Meditations() {
     formState?.mode === 'edit' ? findMeditation(formState.meditationId) : undefined;
   const deletingMeditation = findMeditation(deletingMeditationId);
 
-  function handleToggle(id: string, isEnabled: boolean) {
-    setMeditations((currentMeditations) =>
-      currentMeditations.map((meditation) =>
+  async function handleToggle(id: string, isEnabled: boolean) {
+    const previous = meditations;
+    setNotice(null);
+    setMeditations((current) =>
+      current.map((meditation) =>
         meditation.id === id ? { ...meditation, enabled: isEnabled } : meditation,
       ),
     );
+    try {
+      const updated = await setMeditationEnabled(id, isEnabled);
+      setMeditations((current) =>
+        current.map((meditation) => (meditation.id === id ? updated : meditation)),
+      );
+    } catch {
+      setMeditations(previous);
+      setNotice('Não foi possível atualizar a visibilidade da meditação.');
+    }
   }
 
-  // Até a integração com a API, o áudio enviado só fica disponível nesta sessão do navegador.
-  function handleFormSubmit({ audioFile, ...values }: MeditationFormValues) {
-    const audioUrl = audioFile ? URL.createObjectURL(audioFile) : null;
-
+  async function handleFormSubmit(values: MeditationFormValues) {
     if (formState?.mode === 'edit') {
-      const { meditationId } = formState;
-      setMeditations((currentMeditations) =>
-        currentMeditations.map((meditation) =>
-          meditation.id === meditationId
-            ? { ...meditation, ...values, audioUrl: audioUrl ?? meditation.audioUrl }
-            : meditation,
-        ),
-      );
+      await updateMeditation(formState.meditationId, values);
     } else {
-      const newMeditation: Meditation = {
-        ...values,
-        id: crypto.randomUUID(),
-        audioUrl,
-        createdAt: new Date().toISOString(),
-      };
-      setMeditations((currentMeditations) => [newMeditation, ...currentMeditations]);
+      await createMeditation(values);
     }
     setFormState(null);
+    setNotice(null);
+    setReloadKey((key) => key + 1);
   }
 
-  function handleConfirmDelete() {
-    setMeditations((currentMeditations) =>
-      currentMeditations.filter((meditation) => meditation.id !== deletingMeditationId),
-    );
-    setDeletingMeditationId(null);
+  async function handleConfirmDelete() {
+    if (!deletingMeditationId) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteMeditation(deletingMeditationId);
+      setDeletingMeditationId(null);
+      setReloadKey((key) => key + 1);
+    } catch {
+      setDeleteError('Não foi possível excluir a meditação.');
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
   return (
     <>
       <MeditationsScreen
         meditations={meditations}
-        onToggle={handleToggle}
+        isLoading={isLoading}
+        error={error}
+        notice={notice}
+        onToggle={(id, isEnabled) => void handleToggle(id, isEnabled)}
         onEdit={(id) => setFormState({ mode: 'edit', meditationId: id })}
         onDelete={setDeletingMeditationId}
         onCreate={() => setFormState({ mode: 'create' })}
+        onRetry={() => setReloadKey((key) => key + 1)}
       />
 
       {formState && (
@@ -82,8 +127,14 @@ export function Meditations() {
           title="Excluir meditação?"
           message={`"${deletingMeditation.title}" deixará de aparecer no aplicativo.`}
           confirmLabel="Excluir"
-          onConfirm={handleConfirmDelete}
-          onCancel={() => setDeletingMeditationId(null)}
+          isConfirming={isDeleting}
+          error={deleteError}
+          onConfirm={() => void handleConfirmDelete()}
+          onCancel={() => {
+            if (isDeleting) return;
+            setDeletingMeditationId(null);
+            setDeleteError(null);
+          }}
         />
       )}
     </>
