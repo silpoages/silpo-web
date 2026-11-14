@@ -9,6 +9,12 @@ export function setUnauthorizedHandler(handler: (() => void) | null) {
   unauthorizedHandler = handler;
 }
 
+/** Encerra a sessão no cliente. O 401 já faz isso; o dashboard também usa no 403. */
+export function expireSession() {
+  clearAccessToken();
+  unauthorizedHandler?.();
+}
+
 export class ApiError extends Error {
   status: number;
 
@@ -21,7 +27,8 @@ export class ApiError extends Error {
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers);
-  if (!headers.has('Content-Type')) {
+  const isFormData = typeof FormData !== 'undefined' && init?.body instanceof FormData;
+  if (!headers.has('Content-Type') && !isFormData) {
     headers.set('Content-Type', 'application/json');
   }
   const accessToken = getAccessToken();

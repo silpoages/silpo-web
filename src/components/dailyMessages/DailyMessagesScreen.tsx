@@ -20,6 +20,7 @@ type DailyMessagesScreenProps = {
   pageSize: number;
   isLoading?: boolean;
   error?: string | null;
+  notice?: string | null;
   onStatusFilterChange: (statusFilter: DailyMessageStatusFilter) => void;
   onSearchChange: (search: string) => void;
   onPageChange: (page: number) => void;
@@ -50,6 +51,7 @@ export function DailyMessagesScreen({
   pageSize,
   isLoading = false,
   error = null,
+  notice = null,
   onStatusFilterChange,
   onSearchChange,
   onPageChange,
@@ -138,6 +140,11 @@ export function DailyMessagesScreen({
         />
       </div>
 
+      {notice ? (
+        <p className="daily-messages__feedback" role="alert">
+          {notice}
+        </p>
+      ) : null}
       <div className="daily-messages__card">{renderContent()}</div>
     </section>
   );
