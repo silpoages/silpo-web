@@ -7,6 +7,7 @@ type MeditationsScreenProps = {
   meditations: Meditation[];
   isLoading?: boolean;
   error?: string | null;
+  notice?: string | null;
   onToggle: (id: string, isEnabled: boolean) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
@@ -18,6 +19,7 @@ export function MeditationsScreen({
   meditations,
   isLoading = false,
   error = null,
+  notice = null,
   onToggle,
   onEdit,
   onDelete,
@@ -83,6 +85,11 @@ export function MeditationsScreen({
         </button>
       </header>
 
+      {notice ? (
+        <p className="meditations__feedback" role="alert">
+          {notice}
+        </p>
+      ) : null}
       {renderContent()}
     </section>
   );

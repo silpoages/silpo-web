@@ -2,6 +2,7 @@ import { useState, type ChangeEvent, type DragEvent, type FormEvent } from 'reac
 import selectChevronIcon from '@/assets/icons/select-chevron.svg';
 import { Modal } from '@/components/ui/Modal';
 import { formatDuration, parseDuration } from '@/lib/duration';
+import { ApiError } from '@/services/api';
 import type { Meditation, MeditationFormValues } from '@/types/meditation';
 
 const MAX_AUDIO_SIZE_BYTES = 20 * 1024 * 1024;
@@ -9,7 +10,7 @@ const DEFAULT_DURATION = '05:00';
 
 type MeditationFormModalProps = {
   meditation?: Meditation;
-  onSubmit: (values: MeditationFormValues) => void;
+  onSubmit: (values: MeditationFormValues) => void | Promise<void>;
   onClose: () => void;
 };
 
@@ -36,6 +37,8 @@ export function MeditationFormModal({ meditation, onSubmit, onClose }: Meditatio
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function selectAudioFile(file: File | undefined) {
     if (!file) return;
@@ -60,7 +63,7 @@ export function MeditationFormModal({ meditation, onSubmit, onClose }: Meditatio
     selectAudioFile(event.dataTransfer.files[0]);
   }
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     const durationSeconds = parseDuration(duration);
     const nextErrors: FormErrors = {};
@@ -71,13 +74,25 @@ export function MeditationFormModal({ meditation, onSubmit, onClose }: Meditatio
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0 || !durationSeconds) return;
 
-    onSubmit({
-      title: title.trim(),
-      description: description.trim(),
-      durationSeconds,
-      enabled: isEnabled,
-      audioFile,
-    });
+    setFormError(null);
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        title: title.trim(),
+        description: description.trim(),
+        durationSeconds,
+        enabled: isEnabled,
+        audioFile,
+      });
+    } catch (submitError) {
+      setFormError(
+        submitError instanceof ApiError
+          ? submitError.message
+          : 'Não foi possível salvar a meditação.',
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const dropzoneClassNames = ['meditation-dropzone'];
@@ -95,7 +110,12 @@ export function MeditationFormModal({ meditation, onSubmit, onClose }: Meditatio
           <button type="button" className="button button--secondary" onClick={onClose}>
             Cancelar
           </button>
-          <button type="submit" form="meditation-form-fields" className="button button--primary">
+          <button
+            type="submit"
+            form="meditation-form-fields"
+            className="button button--primary"
+            disabled={isSubmitting}
+          >
             {isEditing ? 'Salvar alterações' : 'Criar meditação'}
           </button>
         </>
@@ -107,6 +127,7 @@ export function MeditationFormModal({ meditation, onSubmit, onClose }: Meditatio
         noValidate
         onSubmit={handleSubmit}
       >
+        {formError ? <p className="meditation-field__error">{formError}</p> : null}
         <div className="meditation-field meditation-form__full">
           <label htmlFor="meditation-field-title" className="meditation-field__label">
             Título
