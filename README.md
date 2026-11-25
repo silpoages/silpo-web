@@ -66,12 +66,34 @@ Testes ficam ao lado do arquivo que testam (ex.: `src/pages/Dashboard/Dashboard.
 npm run test
 ```
 
+### Cobertura de testes
+
+```bash
+npm run test:coverage
+npm run coverage:summary
+```
+
+A coleta usa o V8 e mede linhas, instruções, funções e ramificações de todo o código
+TypeScript em `src/`, inclusive arquivos não importados pelos testes. Apenas arquivos de
+teste, declarações de tipos (`.d.ts`) e o setup dos testes ficam fora da medição.
+
+- `coverage/index.html`: relatório navegável por arquivo.
+- `coverage/coverage-summary.json`: percentuais e contagens por métrica.
+- `coverage/lcov.info`: relatório para integração com outras ferramentas.
+
+O CI publica os percentuais no resumo da execução e disponibiliza o artefato
+`web-coverage` por 14 dias. Relatórios gerados após falha de testes podem ser parciais;
+confira também o resultado do job. Os arquivos gerados não são versionados.
+
+Nesta etapa não há percentual mínimo obrigatório. Cobertura mede código exercitado,
+não a porcentagem de testes aprovados nem a ausência de defeitos.
+
 ## CI
 
 [.github/workflows/ci.yml](.github/workflows/ci.yml) roda em todo push e pull request:
 
 - **Lint** — `oxlint` + `prettier --check` + `tsc` (typecheck) + `npm audit`
-- **Test** — `vitest run`
+- **Test** — `vitest run --coverage`, resumo de percentuais e relatórios para download
 - **Build** — `vite build` (roda só se `Lint` e `Test` passarem)
 
 ## Fluxo de branches
