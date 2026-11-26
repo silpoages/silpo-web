@@ -154,4 +154,180 @@ describe('Users', () => {
     );
     expect(screen.getByRole('dialog', { name: 'Novo usuário' })).toBeInTheDocument();
   });
+
+  it('creates a user and reloads the list', async () => {
+    vi.mocked(createUser).mockResolvedValue({ ...helena, id: '3', name: 'Nova Pessoa' });
+    render(<Users />);
+    await screen.findByText('Marina Alves');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Novo usuário' }));
+    fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova Pessoa' } });
+    fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: 'nova@email.com' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Criar usuário' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(createUser).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Nova Pessoa', email: 'nova@email.com' }),
+    );
+    expect(getUsers).toHaveBeenCalledTimes(2);
+  });
+
+  it('edits a user straight from the table and closes the form on cancel', async () => {
+    render(<Users />);
+    await screen.findByText('Marina Alves');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Editar usuário: Helena Prado' }));
+    expect(screen.getByLabelText('Nome')).toHaveValue('Helena Prado');
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(updateUser).not.toHaveBeenCalled();
+  });
+
+  it('closes the details modal', async () => {
+    render(<Users />);
+    await screen.findByText('Marina Alves');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes de Helena Prado' }));
+    const dialog = screen.getByRole('dialog', { name: 'Helena Prado' });
+    expect(within(dialog).getByText('—')).toBeInTheDocument();
+    // O "X" do cabeçalho e o botão do rodapé fecham do mesmo jeito.
+    fireEvent.click(within(dialog).getAllByRole('button', { name: 'Fechar' })[1]);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ver detalhes de Helena Prado' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Fechar' })[0]);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('asks for the page size and goes back to the first page', async () => {
+    vi.mocked(getUsers).mockResolvedValue({ users: [marina, helena], total: 25 });
+    render(<Users />);
+    await screen.findByText('Marina Alves');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Página 2' }));
+    await waitFor(() =>
+      expect(getUsers).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 })),
+    );
+    fireEvent.change(screen.getByLabelText('Itens por página'), { target: { value: '20' } });
+
+    await waitFor(() =>
+      expect(getUsers).toHaveBeenLastCalledWith(expect.objectContaining({ page: 1, pageSize: 20 })),
+    );
+  });
+
+  it('goes back one page when the current page comes back empty', async () => {
+    vi.mocked(getUsers)
+      .mockResolvedValueOnce({ users: [marina, helena], total: 12 })
+      .mockResolvedValueOnce({ users: [], total: 10 })
+      .mockResolvedValue({ users: [marina], total: 10 });
+    render(<Users />);
+    await screen.findByText('Marina Alves');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Página 2' }));
+
+    await waitFor(() =>
+      expect(getUsers).toHaveBeenLastCalledWith(expect.objectContaining({ page: 1 })),
+    );
+    expect(await screen.findByText('Marina Alves')).toBeInTheDocument();
+    expect(getUsers).toHaveBeenCalledTimes(3);
+  });
+
+  it('filters by gender and clears the filters', async () => {
+    render(<Users />);
+    await screen.findByText('Marina Alves');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Filtros' }));
+    fireEvent.change(screen.getByLabelText('Gênero'), { target: { value: 'MALE' } });
+    await waitFor(() =>
+      expect(getUsers).toHaveBeenLastCalledWith(
+        expect.objectContaining({ filters: { status: 'all', gender: 'MALE' } }),
+      ),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar filtros' }));
+
+    await waitFor(() =>
+      expect(getUsers).toHaveBeenLastCalledWith(
+        expect.objectContaining({ filters: { status: 'all', gender: 'all' } }),
+      ),
+    );
+  });
+
+  it.each([
+    [new ApiError(403, 'Forbidden'), 'Você não tem permissão para gerenciar usuários.'],
+    [new Error('offline'), 'Não foi possível carregar os usuários.'],
+  ])('explains load failures (%s)', async (error, message) => {
+    vi.mocked(getUsers).mockRejectedValueOnce(error);
+    render(<Users />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(message);
+  });
+
+  it('stays quiet on 401 while the session handler takes over', async () => {
+    vi.mocked(getUsers).mockRejectedValueOnce(new ApiError(401, 'expired'));
+    render(<Users />);
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('ignores responses that arrive after the page is closed', async () => {
+    let resolve: (value: { users: AdminUser[]; total: number }) => void = () => {};
+    let reject: (error: unknown) => void = () => {};
+    vi.mocked(getUsers)
+      .mockReturnValueOnce(new Promise((resolvePromise) => (resolve = resolvePromise)))
+      .mockReturnValueOnce(new Promise((_, rejectPromise) => (reject = rejectPromise)));
+
+    render(<Users />).unmount();
+    render(<Users />).unmount();
+    resolve({ users: [marina], total: 1 });
+    reject(new Error('offline'));
+    await new Promise((resolveTick) => setTimeout(resolveTick, 0));
+
+    expect(screen.queryByText('Marina Alves')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('keeps the form open without an error message when saving gets 401', async () => {
+    vi.mocked(createUser).mockRejectedValue(new ApiError(401, 'expired'));
+    render(<Users />);
+    await screen.findByText('Marina Alves');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Novo usuário' }));
+    fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Nova Pessoa' } });
+    fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: 'nova@email.com' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Criar usuário' }));
+
+    await waitFor(() => expect(createUser).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Criar usuário' })).toBeEnabled(),
+    );
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('keeps the confirmation open without an error message when deactivating gets 401', async () => {
+    vi.mocked(updateUser).mockRejectedValue(new ApiError(401, 'expired'));
+    render(<Users />);
+    await screen.findByText('Marina Alves');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Desativar usuário: Marina Alves' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Desativar' }));
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Desativar' })).toBeEnabled());
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('uses the generic message when saving fails without an API answer', async () => {
+    vi.mocked(updateUser).mockRejectedValue(new Error('offline'));
+    render(<Users />);
+    await screen.findByText('Marina Alves');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Desativar usuário: Marina Alves' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Desativar' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Não foi possível desativar o usuário.',
+    );
+  });
 });

@@ -151,4 +151,27 @@ describe('UsersScreen', () => {
 
     expect(screen.getByText('Nenhum usuário encontrado para "xyz".')).toBeInTheDocument();
   });
+
+  it('shows accounts that have not finished onboarding by their e-mail', () => {
+    const onView = vi.fn();
+    renderScreen({
+      users: [{ ...users[0], id: '9', name: null, email: 'zeca@email.com' }],
+      onView,
+    });
+
+    const row = screen.getByRole('button', { name: 'Ver detalhes de Sem nome' });
+    expect(row).toHaveTextContent('Z');
+    expect(row).toHaveTextContent('zeca@email.com');
+    fireEvent.click(row);
+    expect(onView).toHaveBeenCalledWith('9');
+  });
+
+  it('clears the filters from the filters panel', () => {
+    const { onFiltersChange } = renderScreen({ filters: { status: 'inactive', gender: 'MALE' } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Filtros, 2 ativos' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Limpar filtros' }));
+
+    expect(onFiltersChange).toHaveBeenCalledWith(DEFAULT_USER_FILTERS);
+  });
 });

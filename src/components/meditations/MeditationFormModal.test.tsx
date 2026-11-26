@@ -89,4 +89,30 @@ describe('MeditationFormModal', () => {
       audioFile: null,
     });
   });
+
+  it('accepts an MP3 dropped on the drop zone and highlights it while dragging', () => {
+    render(<MeditationFormModal onSubmit={vi.fn()} onClose={vi.fn()} />);
+    const dropzone = screen.getByLabelText('Arquivo de áudio').closest('label') as HTMLElement;
+
+    fireEvent.dragOver(dropzone);
+    expect(dropzone).toHaveClass('meditation-dropzone--dragging');
+    fireEvent.dragLeave(dropzone);
+    expect(dropzone).not.toHaveClass('meditation-dropzone--dragging');
+
+    fireEvent.dragOver(dropzone);
+    fireEvent.drop(dropzone, { dataTransfer: { files: [createFile('solta.mp3', '')] } });
+
+    expect(dropzone).not.toHaveClass('meditation-dropzone--dragging');
+    expect(screen.getByText('solta.mp3')).toBeInTheDocument();
+  });
+
+  it('ignores a drop or a selection without a file', () => {
+    render(<MeditationFormModal onSubmit={vi.fn()} onClose={vi.fn()} />);
+    const input = screen.getByLabelText('Arquivo de áudio');
+
+    fireEvent.drop(input.closest('label') as HTMLElement, { dataTransfer: { files: [] } });
+    fireEvent.change(input, { target: { files: [] } });
+
+    expect(screen.queryByText('Envie um arquivo no formato MP3.')).toBeNull();
+  });
 });

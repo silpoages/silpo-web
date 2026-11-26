@@ -18,6 +18,8 @@ export function ForgotPassword() {
     // Guardado antes do await: o React zera event.currentTarget depois do dispatch.
     const form = event.currentTarget;
     const formData = new FormData(form);
+    // O campo sempre existe neste formulário: o `?? ''` só satisfaz o tipo do FormData.
+    /* v8 ignore next */
     const email = String(formData.get('email') ?? '').trim();
 
     setFeedback('');

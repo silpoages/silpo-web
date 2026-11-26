@@ -122,6 +122,8 @@ export function Users() {
   }
 
   async function handleConfirmDeactivate() {
+    // Só é chamado pelo diálogo de confirmação, que só aparece com um usuário selecionado.
+    /* v8 ignore next */
     if (!deactivatingUserId) return;
     setIsSaving(true);
     setMutationError(null);

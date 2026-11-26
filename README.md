@@ -66,12 +66,21 @@ Testes ficam ao lado do arquivo que testam (ex.: `src/pages/Dashboard/Dashboard.
 npm run test
 ```
 
+Para ver a cobertura (o CI falha se linhas, branches, funções ou statements ficarem abaixo de 100%):
+
+```bash
+npm run test -- --coverage
+```
+
+O relatório HTML fica em `coverage/index.html`. Use `/* v8 ignore next */` só em código que não tem
+como ser executado (com um comentário explicando o motivo).
+
 ## CI
 
 [.github/workflows/ci.yml](.github/workflows/ci.yml) roda em todo push e pull request:
 
 - **Lint** — `oxlint` + `prettier --check` + `tsc` (typecheck) + `npm audit`
-- **Test** — `vitest run`
+- **Test** — `vitest run --coverage` (falha abaixo de 100% de cobertura)
 - **Build** — `vite build` (roda só se `Lint` e `Test` passarem)
 
 ## Fluxo de branches

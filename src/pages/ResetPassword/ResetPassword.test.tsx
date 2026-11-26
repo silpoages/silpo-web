@@ -94,4 +94,66 @@ describe('ResetPassword', () => {
 
     expect(await screen.findByText(/inválido, expirou ou já foi utilizado/)).toBeInTheDocument();
   });
+
+  it('offers a retry when the link cannot be checked', async () => {
+    vi.mocked(verifyResetCode)
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce({ message: 'Valid reset code' });
+    renderPage();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Não foi possível verificar o link.',
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('Verificando link…');
+    expect(await screen.findByLabelText('NOVA SENHA')).toBeInTheDocument();
+    expect(verifyResetCode).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps the form with a message when saving fails for another reason', async () => {
+    vi.mocked(verifyResetCode).mockResolvedValue({ message: 'Valid reset code' });
+    vi.mocked(resetPassword).mockRejectedValue(new ApiError(500, 'Erro'));
+    renderPage();
+    await screen.findByLabelText('NOVA SENHA');
+
+    fillPasswords('nova-senha-1', 'nova-senha-1');
+
+    expect(
+      await screen.findByText('Não foi possível redefinir a senha. Tente novamente.'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Redefinir senha' })).toBeEnabled();
+  });
+
+  it('ignores the verification result after leaving the page', async () => {
+    let rejectVerify: (error: unknown) => void = () => {};
+    vi.mocked(verifyResetCode).mockReturnValue(
+      new Promise((_, reject) => {
+        rejectVerify = reject;
+      }),
+    );
+    renderPage();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Voltar ao login' }));
+    rejectVerify(new ApiError(400, 'Invalid'));
+    await Promise.resolve();
+
+    expect(screen.getByText('Tela de login')).toBeInTheDocument();
+  });
+
+  it('ignores a successful verification after leaving the page', async () => {
+    let resolveVerify: (value: { message: string }) => void = () => {};
+    vi.mocked(verifyResetCode).mockReturnValue(
+      new Promise((resolve) => {
+        resolveVerify = resolve;
+      }),
+    );
+    renderPage();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Voltar ao login' }));
+    resolveVerify({ message: 'ok' });
+    await Promise.resolve();
+
+    expect(screen.getByText('Tela de login')).toBeInTheDocument();
+  });
 });

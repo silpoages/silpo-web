@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { requestPasswordReset } from '@/services/forgotPassword';
 import { ForgotPassword } from './ForgotPassword';
@@ -46,5 +46,20 @@ describe('ForgotPassword', () => {
     expect(
       await screen.findByText('Não foi possível enviar o link. Tente novamente.'),
     ).toBeInTheDocument();
+  });
+
+  it('goes back to the login', () => {
+    render(
+      <MemoryRouter initialEntries={['/forgot-password']}>
+        <Routes>
+          <Route path="/" element={<p>Tela de login</p>} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Voltar ao login' }));
+
+    expect(screen.getByText('Tela de login')).toBeInTheDocument();
   });
 });

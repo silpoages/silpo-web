@@ -9,6 +9,8 @@ type MoodStackedChartProps = {
 };
 
 function getAxisIndexes(length: number): number[] {
+  // O eixo só é desenhado quando há registros, então nunca chega vazio aqui.
+  /* v8 ignore next */
   if (length === 0) return [];
   return [...new Set([0, Math.floor((length - 1) / 2), length - 1])];
 }

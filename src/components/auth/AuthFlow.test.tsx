@@ -139,4 +139,34 @@ describe('admin authentication', () => {
     expect(await screen.findByRole('button', { name: 'Entrar' })).toBeInTheDocument();
     expect(getAccessToken()).toBeNull();
   });
+
+  it('keeps a saved token when the API cannot be reached', async () => {
+    setAccessToken('jwt', true);
+    vi.mocked(getCurrentUser).mockRejectedValue(new TypeError('Failed to fetch'));
+
+    renderApp('/users');
+
+    expect(await screen.findByRole('heading', { name: 'Entrar no painel' })).toBeInTheDocument();
+    expect(getAccessToken()).toBe('jwt');
+  });
+
+  it('ignores the session check after the app is closed', async () => {
+    setAccessToken('jwt', true);
+    let resolveUser: (user: AuthUser) => void = () => {};
+    let rejectUser: (error: unknown) => void = () => {};
+    vi.mocked(getCurrentUser)
+      .mockReturnValueOnce(new Promise((resolve) => (resolveUser = resolve)))
+      .mockReturnValueOnce(new Promise((_, reject) => (rejectUser = reject)));
+
+    const first = render(<AuthProvider>{null}</AuthProvider>);
+    first.unmount();
+    const second = render(<AuthProvider>{null}</AuthProvider>);
+    second.unmount();
+    resolveUser(admin);
+    rejectUser(new ApiError(401, 'expired'));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // Nenhuma das respostas tardias encerra a sessão salva.
+    expect(getAccessToken()).toBe('jwt');
+  });
 });

@@ -51,9 +51,12 @@ export function ResetPassword() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    // Os dois campos sempre existem neste formulário: o `?? ''` só satisfaz o tipo do FormData.
+    /* v8 ignore next */
     const password = String(formData.get('password') ?? '');
     const validationError = validatePassword(
       password,
+      /* v8 ignore next */
       String(formData.get('passwordConfirmation') ?? ''),
     );
     if (validationError) {
