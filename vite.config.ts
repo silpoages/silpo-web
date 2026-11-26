@@ -17,5 +17,13 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
     pool: 'threads',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      include: ['src/**'],
+      exclude: ['src/types/**', 'src/main.tsx', 'src/setupTests.ts', 'src/**/*.test.{ts,tsx}'],
+      // Piso do CI: a cobertura não pode cair.
+      thresholds: { lines: 100, branches: 100, functions: 100, statements: 100 },
+    },
   },
 });

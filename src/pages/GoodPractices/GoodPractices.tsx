@@ -59,6 +59,8 @@ export function GoodPractices() {
   }, [reloadKey]);
 
   async function handleSave(values: GoodPracticeFormValues) {
+    // Só é chamado pelo formulário, que só aparece nos modos 'create' e 'edit'.
+    /* v8 ignore next 3 */
     if (!modalState || modalState.type === 'delete') {
       return;
     }
@@ -90,6 +92,8 @@ export function GoodPractices() {
   }
 
   async function handleDelete() {
+    // Só é chamado pelo diálogo de exclusão, que só aparece no modo 'delete'.
+    /* v8 ignore next 3 */
     if (modalState?.type !== 'delete') {
       return;
     }
