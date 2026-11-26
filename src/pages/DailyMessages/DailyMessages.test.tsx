@@ -211,8 +211,10 @@ describe('DailyMessages', () => {
   });
 
   it('creates a message and reloads the list', async () => {
-    vi.mocked(createDailyMessage).mockResolvedValue({ ...rest, id: '3', message: 'Nova.' });
+    const created = { ...rest, id: '3', message: 'Nova.' };
+    vi.mocked(createDailyMessage).mockResolvedValue(created);
     await renderLoaded();
+    vi.mocked(getDailyMessages).mockResolvedValue(page([created, rest, help]));
 
     fireEvent.click(screen.getByRole('button', { name: 'Nova mensagem' }));
     fireEvent.change(screen.getByLabelText('Mensagem'), { target: { value: ' Nova. ' } });
@@ -220,12 +222,14 @@ describe('DailyMessages', () => {
 
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(createDailyMessage).toHaveBeenCalledWith({ message: 'Nova.', enabled: true });
-    expect(getDailyMessages).toHaveBeenCalledTimes(2);
+    expect(await screen.findByText(created.message)).toBeInTheDocument();
   });
 
   it('edits a message and reloads the list', async () => {
-    vi.mocked(updateDailyMessage).mockResolvedValue({ ...rest, message: 'Revisada.' });
+    const updated = { ...rest, message: 'Revisada.' };
+    vi.mocked(updateDailyMessage).mockResolvedValue(updated);
     await renderLoaded();
+    vi.mocked(getDailyMessages).mockResolvedValue(page([updated, help]));
 
     fireEvent.click(screen.getByRole('button', { name: /editar mensagem: descanso/i }));
     expect(screen.getByLabelText('Mensagem')).toHaveValue(rest.message);
@@ -234,7 +238,7 @@ describe('DailyMessages', () => {
 
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(updateDailyMessage).toHaveBeenCalledWith('1', { message: 'Revisada.', enabled: true });
-    expect(getDailyMessages).toHaveBeenCalledTimes(2);
+    expect(await screen.findByText(updated.message)).toBeInTheDocument();
   });
 
   it.each([
