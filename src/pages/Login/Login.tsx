@@ -40,8 +40,11 @@ export function Login() {
     setIsSubmitting(true);
 
     try {
+      // Os dois campos sempre existem neste formulário: o `?? ''` só satisfaz o tipo do FormData.
       await login(
+        /* v8 ignore next */
         String(formData.get('email') ?? '').trim(),
+        /* v8 ignore next */
         String(formData.get('password') ?? ''),
         formData.get('remember') === 'on',
       );

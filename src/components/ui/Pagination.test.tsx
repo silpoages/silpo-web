@@ -49,4 +49,21 @@ describe('Pagination', () => {
     expect(onPageChange).toHaveBeenNthCalledWith(2, 1);
     expect(onPageSizeChange).toHaveBeenCalledWith(20);
   });
+
+  it('goes to the previous page', () => {
+    const onPageChange = vi.fn();
+    render(
+      <Pagination
+        page={2}
+        totalPages={3}
+        pageSize={10}
+        onPageChange={onPageChange}
+        onPageSizeChange={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Página anterior' }));
+
+    expect(onPageChange).toHaveBeenCalledWith(1);
+  });
 });

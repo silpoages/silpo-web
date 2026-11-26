@@ -29,6 +29,8 @@ export function MeditationCard({ meditation, onToggle, onEdit, onDelete }: Medit
 
   function handlePlayToggle() {
     const audio = audioRef.current;
+    // O botão fica desabilitado sem áudio, e o <audio> existe sempre que há áudio.
+    /* v8 ignore next */
     if (!audio) return;
     if (audio.paused) {
       void audio.play();
