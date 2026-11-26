@@ -85,6 +85,8 @@ export function Meditations() {
   }
 
   async function handleConfirmDelete() {
+    // Só é chamado pelo diálogo de confirmação, que só aparece com uma meditação selecionada.
+    /* v8 ignore next */
     if (!deletingMeditationId) return;
     setIsDeleting(true);
     setDeleteError(null);

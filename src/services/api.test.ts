@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { apiFetch, setUnauthorizedHandler } from './api';
+import { apiFetch, expireSession, setUnauthorizedHandler } from './api';
 import { getAccessToken, setAccessToken } from './session';
 
 function mockFetch(status: number, body: unknown = {}) {
@@ -138,5 +138,24 @@ describe('apiFetch', () => {
     const headers = fetchMock.mock.calls[0][1].headers as Headers;
     expect(headers.get('Content-Type')).toBe('multipart/form-data');
     expect(headers.get('Authorization')).toBe('Bearer other');
+  });
+
+  it('expires the session on demand', () => {
+    const onUnauthorized = vi.fn();
+    setUnauthorizedHandler(onUnauthorized);
+    setAccessToken('token-123', true);
+
+    expireSession();
+
+    expect(getAccessToken()).toBeNull();
+    expect(onUnauthorized).toHaveBeenCalledOnce();
+  });
+
+  it('clears the token even without a registered handler', () => {
+    setAccessToken('token-123');
+
+    expireSession();
+
+    expect(getAccessToken()).toBeNull();
   });
 });
